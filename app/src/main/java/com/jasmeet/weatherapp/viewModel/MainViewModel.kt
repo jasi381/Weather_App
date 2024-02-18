@@ -26,8 +26,12 @@ class MainViewModel :ViewModel(){
     private val _apiResponse = MutableLiveData<WeatherData>()
     val apiResponse: LiveData<WeatherData> get() = _apiResponse
 
+   private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
 
     fun fetchDataWithCoordinates(lat: Double, lon: Double) {
+        _isLoading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             val result = makeApiCall("$BASE_URL?location=$lat,$lon&apikey=$API_KEY")
             _apiResult.postValue(result)
@@ -37,6 +41,7 @@ class MainViewModel :ViewModel(){
     }
 
     fun fetchDataWithCity(city: String) {
+        _isLoading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             val result = makeApiCall("$BASE_URL?location=$city&apikey=$API_KEY")
             _apiResult.postValue(result)
@@ -49,6 +54,7 @@ class MainViewModel :ViewModel(){
         val gson = Gson()
         val apiResponse = gson.fromJson(response, WeatherData::class.java)
         _apiResponse.postValue(apiResponse)
+        _isLoading.postValue(false)
     }
 
     //make api call using try catch block
